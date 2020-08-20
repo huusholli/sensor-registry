@@ -1,5 +1,7 @@
 # SENSOR-REGISTRY
 
+[![Actions Status](https://github.com/huusholli/sensor-registry/workflows/CI/badge.svg)](https://github.com/huusholli/sensor-registry/actions)
+
 Internal sensor registry to keep track of all kinds of sensors located in `huusholli`.
 
 ## Installation
