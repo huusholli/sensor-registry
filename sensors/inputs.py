@@ -6,8 +6,9 @@ class RegisterSensorInputs(Inputs):
   'type': 'object',
   'properties': {
     'type': {'type': 'string'},
-    'group': {'type': 'string'}
+    'group': {'type': 'string'},
+    'offlineTimeout': {'type': 'number', 'minimum': 1}
   },
   'additionalProperties': False,
-  'required': ['type']
+  'required': ['type', 'offlineTimeout']
 })]

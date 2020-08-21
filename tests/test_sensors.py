@@ -22,24 +22,39 @@ def test_empty_db(client):
 def test_register_sensor(client):
   sensor = client.post('/sensors', json={
     'type': 'humidity',
-    'group': 'ruuvi-mac'
+    'group': 'ruuvi-mac',
+    'offlineTimeout': 20,
   }).get_json()
 
   assert sensor['id'] != None
   assert sensor['type'] == 'humidity'
   assert sensor['group'] == 'ruuvi-mac'
+  assert sensor['createdAt'] != None
 
-  assert client.get('/sensors/' + sensor['id']).get_json() == sensor
+  assert client.get('/sensors/' + sensor['id']).get_json().get('id') == sensor.get('id')
   assert len(client.get('/sensors').get_json()) == 1
 
 def test_remove_sensor(client):
   sensor = client.post('/sensors', json={
     'type': 'humidity',
-    'group': 'ruuvi-mac'
+    'group': 'ruuvi-mac',
+    'offlineTimeout': 20,
   }).get_json()
 
-  assert client.delete('/sensors/' + sensor['id']).get_json() == sensor
+  assert client.delete('/sensors/' + sensor['id']).get_json().get('id') == sensor.get('id')
   assert len(client.get('/sensors').get_json()) == 0
+
+def test_receive_sensor_data(client):
+  sensor = client.post('/sensors', json={
+    'type': 'pressure',
+    'offlineTimeout': 10
+  }).get_json()
+
+  assert client.post('/sensors/' + sensor['id'] + '/data').status_code == 201
+
+  sensor = client.get('/sensors/' + sensor['id']).get_json()
+
+  assert sensor['dataLastReceivedAt'] != None
 
 def test_errorcodes(client):
   assert client.get('/sensors/foo').status_code == 404
