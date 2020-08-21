@@ -8,7 +8,7 @@ from sensors.controllers import sensors, health
 
 app = Flask(__name__)
 
-app.config['DATABASE'] = os.path.join(app.root_path, '../database.json')
+app.config['DATABASE'] = os.path.join(app.root_path, '../data/database.json')
 
 app.register_blueprint(sensors.api)
 app.register_blueprint(health.api)
