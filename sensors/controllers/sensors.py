@@ -21,12 +21,12 @@ def format_sensor(sensor):
   if sensor.get('dataLastReceivedAt') != None:
     time_last_receive = datetime.strptime(sensor['dataLastReceivedAt'], '%Y-%m-%d %H:%M:%S.%f')
     time_now = datetime.now()
-
     is_online = (time_now - time_last_receive).seconds < int(sensor.get('offlineTimeout'))
 
   return {
     **sensor,
-    'isOnline': is_online
+    'isOnline': is_online,
+    'mqttTopic': 'sensors/' + sensor.get('id')
   }
 
 @api.route('/sensors', methods=['GET'])
@@ -55,7 +55,7 @@ def register_sensor():
 
   db.table('sensors').insert(record)
 
-  return record, 201
+  return format_sensor(record), 201
 
 @api.route('/sensors/<uuid>', methods=['GET'])
 def get_sensor(uuid):

@@ -31,6 +31,7 @@ def test_register_sensor(client):
   assert sensor['type'] == 'humidity'
   assert sensor['group'] == 'ruuvi-mac'
   assert sensor['createdAt'] != None
+  assert sensor['mqttTopic'] == 'sensors/' + sensor['id']
 
   assert client.get('/sensors/' + sensor['id']).get_json().get('id') == sensor.get('id')
   assert len(client.get('/sensors').get_json()) == 1
