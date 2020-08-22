@@ -9,6 +9,7 @@ from sensors import app
 def client():
   app.config['TESTING'] = True
   app.config['DATABASE'] = tempfile.mkstemp()[1]
+  app.config['MQTT_HOST'] = None
 
   with app.test_client() as client:
     yield client
@@ -30,6 +31,7 @@ def test_register_sensor(client):
   assert sensor['type'] == 'humidity'
   assert sensor['group'] == 'ruuvi-mac'
   assert sensor['createdAt'] != None
+  assert sensor['mqttTopic'] == 'sensors/' + sensor['id']
 
   assert client.get('/sensors/' + sensor['id']).get_json().get('id') == sensor.get('id')
   assert len(client.get('/sensors').get_json()) == 1
@@ -50,7 +52,9 @@ def test_receive_sensor_data(client):
     'offlineTimeout': 10
   }).get_json()
 
-  assert client.post('/sensors/' + sensor['id'] + '/data').status_code == 201
+  assert client.post('/sensors/' + sensor['id'] + '/data', json={
+    'value': 10
+  }).status_code == 201
 
   sensor = client.get('/sensors/' + sensor['id']).get_json()
 
@@ -60,3 +64,4 @@ def test_errorcodes(client):
   assert client.get('/sensors/foo').status_code == 404
   assert client.post('/sensors').status_code == 400
   assert client.delete('/sensors/foo').status_code == 404
+  assert client.post('/sensors/foo/data').status_code == 400

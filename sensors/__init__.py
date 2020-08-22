@@ -9,6 +9,7 @@ from sensors.controllers import sensors, health
 app = Flask(__name__)
 
 app.config['DATABASE'] = os.path.join(app.root_path, '../data/database.json')
+app.config['MQTT_HOST'] = os.environ.get('MQTT_HOST')
 
 app.register_blueprint(sensors.api)
 app.register_blueprint(health.api)
