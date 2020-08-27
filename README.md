@@ -12,12 +12,17 @@ Start application development container with `docker-compose`. API is exposed at
 docker-compose up
 ```
 
+## API Docs
+
+Swagger: http://localhost:5000/docs
+Redoc: http://localhost:5000/redoc
+
 ## Development
 
 ### Running tests
 
 ```
-python -W ignore::DeprecationWarning -m pytest -s
+pytest
 ```
 
 # License
