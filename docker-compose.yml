@@ -9,3 +9,5 @@ services:
       - .:/app
     ports:
       - 8000:8000
+    environment:
+      STORAGE_PATH: 'data/database.json'

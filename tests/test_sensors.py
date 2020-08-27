@@ -1,3 +1,5 @@
+import pytest
+from tempfile import mkstemp
 from fastapi.testclient import TestClient
 
 from main import app
@@ -6,6 +8,10 @@ client = TestClient(app)
 
 device_a = {'x-device-id': 'Device A'}
 device_b = {'x-device-id': 'Device B'}
+
+@pytest.fixture(autouse=True)
+def mock_env(monkeypatch):
+  monkeypatch.setenv('STORAGE_PATH', mkstemp()[1])
 
 def test_post_no_data():
   assert client.post('/').status_code == 422
@@ -35,5 +41,3 @@ def test_post_two_devices():
   channel_b = client.post('/', json=data, headers=device_b).headers.get('x-channel-id')
 
   assert channel_a != channel_b
-
-
