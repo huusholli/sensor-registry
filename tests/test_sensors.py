@@ -1,67 +1,39 @@
-import pytest
-import tempfile
-import os
+from fastapi.testclient import TestClient
 
-from flask import json
-from sensors import app
+from main import app
 
-@pytest.fixture
-def client():
-  app.config['TESTING'] = True
-  app.config['DATABASE'] = tempfile.mkstemp()[1]
-  app.config['MQTT_HOST'] = None
+client = TestClient(app)
 
-  with app.test_client() as client:
-    yield client
+device_a = {'x-device-id': 'Device A'}
+device_b = {'x-device-id': 'Device B'}
 
-def test_health(client):
-  assert b'OK' in client.get('/health').data
+def test_post_no_data():
+  assert client.post('/').status_code == 422
 
-def test_empty_db(client):
-  assert len(client.get('/sensors').get_json()) == 0
+def test_post_no_device_id():
+  assert client.post('/', json=[]).status_code == 400
 
-def test_register_sensor(client):
-  sensor = client.post('/sensors', json={
-    'type': 'humidity',
-    'group': 'ruuvi-mac',
-    'offlineTimeout': 20,
-  }).get_json()
+def test_post_valid_data():
+  data = [{'name': 'temperature', 'value': 12}, {'name': 'humidity', 'value': 57.2}]
+  response = client.post('/', json=data, headers=device_a)
 
-  assert sensor['id'] != None
-  assert sensor['type'] == 'humidity'
-  assert sensor['group'] == 'ruuvi-mac'
-  assert sensor['createdAt'] != None
-  assert sensor['mqttTopic'] == 'sensors/' + sensor['id']
+  assert response.status_code == 202
+  assert response.headers.get('x-channel-id') != None
 
-  assert client.get('/sensors/' + sensor['id']).get_json().get('id') == sensor.get('id')
-  assert len(client.get('/sensors').get_json()) == 1
+def test_post_same_device():
+  data = []
 
-def test_remove_sensor(client):
-  sensor = client.post('/sensors', json={
-    'type': 'humidity',
-    'group': 'ruuvi-mac',
-    'offlineTimeout': 20,
-  }).get_json()
+  channel_1 = client.post('/', json=data, headers=device_a).headers.get('x-channel-id')
+  channel_2 =client.post('/', json=data, headers=device_a).headers.get('x-channel-id')
 
-  assert client.delete('/sensors/' + sensor['id']).get_json().get('id') == sensor.get('id')
-  assert len(client.get('/sensors').get_json()) == 0
+  assert channel_1 == channel_2
 
-def test_receive_sensor_data(client):
-  sensor = client.post('/sensors', json={
-    'type': 'pressure',
-    'offlineTimeout': 10
-  }).get_json()
+def test_post_two_devices():
+  data = []
 
-  assert client.post('/sensors/' + sensor['id'] + '/data', json={
-    'value': 10
-  }).status_code == 201
+  channel_a = client.post('/', json=data, headers=device_a).headers.get('x-channel-id')
+  channel_b = client.post('/', json=data, headers=device_b).headers.get('x-channel-id')
 
-  sensor = client.get('/sensors/' + sensor['id']).get_json()
+  assert channel_a != channel_b
 
-  assert sensor['dataLastReceivedAt'] != None
 
-def test_errorcodes(client):
-  assert client.get('/sensors/foo').status_code == 404
-  assert client.post('/sensors').status_code == 400
-  assert client.delete('/sensors/foo').status_code == 404
-  assert client.post('/sensors/foo/data').status_code == 400

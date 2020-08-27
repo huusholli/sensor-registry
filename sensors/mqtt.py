@@ -1,25 +1,22 @@
-from flask import g
-from flask import current_app
-
-from tinydb import TinyDB
-
+import os
 import paho.mqtt.client as mqtt
 
 def get_mqtt():
-  mqtt_host = current_app.config['MQTT_HOST']
+  mqtt_host = os.environ.get('MQTT_HOST')
 
-  # Can be None for testing purposes
   if mqtt_host is None:
     return None
 
-  if 'mqtt' not in g:
-    g.mqtt = mqtt.Client()
-    g.mqtt.connect(current_app.config['MQTT_HOST'])
+  client = mqtt.Client()
+  client.connect(mqtt_host)
 
-  return g.mqtt
+  return client
 
-def publish(topic, value):
+def publish(topic, message):
   client = get_mqtt()
 
-  if client is not None:
-    client.publish(topic, value)
+  # May happen in testing for example
+  if client is None:
+    return
+
+  client.publish(topic, message)

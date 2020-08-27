@@ -1,24 +1,21 @@
-# SENSOR-REGISTRY
+# sensor-registry
 
 [![Actions Status](https://github.com/huusholli/sensor-registry/workflows/CI/badge.svg)](https://github.com/huusholli/sensor-registry/actions)
 
-Internal sensor registry to keep track of all kinds of sensors located in `huusholli`.
+Thing Gateway.
 
 ## Installation
 
-Start application development container with `docker-compose`. API is exposed at http://localhost:5000. Application data is stored at the project root in file `database.json`.
+Start application development container with `docker-compose`. API is exposed at http://localhost:5000.
 
 ```
 docker-compose up
 ```
 
-## Development
+## API Docs
 
-### Running tests
-
-```
-python -W ignore::DeprecationWarning -m pytest -s
-```
+Swagger: http://localhost:5000/docs
+Redoc: http://localhost:5000/redoc
 
 # License
 
