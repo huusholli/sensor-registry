@@ -1,8 +1,8 @@
-import os
+from os import getenv
 import paho.mqtt.client as mqtt
 
 def get_mqtt():
-  mqtt_host = os.environ.get('MQTT_HOST')
+  mqtt_host = getenv('MQTT_HOST')
 
   if mqtt_host is None:
     return None

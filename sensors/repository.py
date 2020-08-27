@@ -13,7 +13,6 @@ class SensorRepository():
     return None if sensor is None else Sensor(**sensor)
 
 repository = SensorRepository()
-database = None
 
 def get_db():
   return TinyDB(getenv('STORAGE_PATH'))
