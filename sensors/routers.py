@@ -13,7 +13,7 @@ from .mqtt import publish as mqtt_publish
 
 router = APIRouter()
 
-@router.post('/', status_code=202)
+@router.post('/', status_code=202, response_model=Sensor)
 def post_sensor_data(
   body: List[Sample],
   tasks: BackgroundTasks,
@@ -26,10 +26,14 @@ def post_sensor_data(
 
   sensor = repository.get_by_device_id(x_device_id) or repository.add(Sensor.from_device(x_device_id))
 
-  for value in body:
-    tasks.add_task(mqtt_publish, 'sensors/{}/{}'.format(sensor.id, value.name), value.value)
+  for sample in body:
+    sensor.add_sample(sample)
+    tasks.add_task(mqtt_publish, 'sensors/{}/{}'.format(sensor.id, sample.name), sample.value)
 
-  response.headers['x-channel-id'] = sensor.id
+  repository.update(sensor)
 
-  return body
+  return sensor
 
+@router.get('/sensor', response_model=List[Sensor])
+def get_sensors(repository: SensorRepository = Depends(get_repository)):
+  return repository.get_all()

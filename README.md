@@ -6,7 +6,7 @@ Internal sensor registry to keep track of all kinds of sensors located in `huush
 
 ## Installation
 
-Start application development container with `docker-compose`. API is exposed at http://localhost:5000. Application data is stored at the project root in file `database.json`.
+Start application development container with `docker-compose`. API is exposed at http://localhost:5000. Application data is stored at the `data` folder in file `database.json`.
 
 ```
 docker-compose up

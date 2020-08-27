@@ -24,20 +24,21 @@ def test_post_valid_data():
   response = client.post('/', json=data, headers=device_a)
 
   assert response.status_code == 202
-  assert response.headers.get('x-channel-id') != None
+  assert response.json().get('id') != None
+  assert response.json().get('samples') == 2
 
 def test_post_same_device():
   data = []
 
-  channel_1 = client.post('/', json=data, headers=device_a).headers.get('x-channel-id')
-  channel_2 =client.post('/', json=data, headers=device_a).headers.get('x-channel-id')
+  channel_1 = client.post('/', json=data, headers=device_a).json().get('id')
+  channel_2 =client.post('/', json=data, headers=device_a).json().get('id')
 
   assert channel_1 == channel_2
 
 def test_post_two_devices():
   data = []
 
-  channel_a = client.post('/', json=data, headers=device_a).headers.get('x-channel-id')
-  channel_b = client.post('/', json=data, headers=device_b).headers.get('x-channel-id')
+  channel_a = client.post('/', json=data, headers=device_a).json().get('id')
+  channel_b = client.post('/', json=data, headers=device_b).json().get('id')
 
   assert channel_a != channel_b
